@@ -74,6 +74,20 @@ To calculate the distances between sequences:
 nadh6_distances <- dist.dna(nadh6_aligned)
 ```
 
+Have a look at the distance matrix:
+
+```
+nadh6_distances
+```
+
+Plot a visual representation of the distances. This requires the "ade4" library
+
+```
+library(ade4)
+
+
+```
+
 Generate the neighbour joining tree using the distance matrix:
 
 ```
@@ -86,5 +100,26 @@ View the tree
 plot(njTree)
 ```
 
+By default the tree is unrooted. Even if it looks right, we should _always_ explicitly root the tree.
+
+```
+rooted_nj_tree <- root(njTree, outgroup=c('pig', 'cow'))
+```
+
+Plot the rooted tree. How does it look different?
+
+
+## Likelihood tree
+
+```
+dna2 <- as.phyDat(nadh6_aligned)
+tre.ini <- nj(dist.dna(nadh6_aligned, model = "TN93"))
+fit.ini <- pml(tre.ini, dna2, k = 4)
+fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+ml.tree <- fit$tree
+ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'))
+ml.tree <- ladderize(ml.tree)
+plot(ml.tree)
+```
 
 
