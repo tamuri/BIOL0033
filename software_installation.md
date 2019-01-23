@@ -19,7 +19,7 @@ If you are on Windows or Linux, you will need to install [Java Runtime](https://
 
 ## Installing the R programming language
 
-1. Download the [R distribution](https://cran.ma.imperial.ac.uk/) for your computer system (Windows, Mac and Linux packages available).
+1. Download the [R distribution](https://cran.ma.imperial.ac.uk/) for your platform (Windows, Mac and Linux packages available).
 2. Run the executable and follow the instructions. The default options are fine.
 
 ## Installing RStudio
@@ -37,7 +37,9 @@ Once you have installed R and RStudio, check that the programs are installed cor
 2. Find the the 'Console' window. The symbol `>` indicates a prompt waiting for your input.
 3. Type the following:
 
-`version$version.string`
+```
+version$version.string
+```
 
 My final output looks like this:
 
@@ -56,17 +58,17 @@ During the installation of packages, if you get a message "Update all/some/none?
 1. Find the 'Console' window. The symbol `>` indicates a prompt waiting for your input.
 2. Type (or copy and paste) the following into the RStudio console and press return
 
-`install.packages(c('ape', 'adegenet', 'phangorn', 'geiger', 'phytools'), dep=TRUE)`
+```
+install.packages(c('ape', 'adegenet', 'phangorn', 'geiger', 'phytools', 'BiocManager'), dep=TRUE)
+```
 
 You will see packages being downloaded and installed. Wait for the installation process to finish (when the output stops and prompt is again displayed).
 
-3. To install packages for multiple sequence alignment, copy & paste the following into your RStudio console and press return
+3. To install packages for multiple sequence alignment, copy & paste the following into the RStudio console and press return
 
 ```
-if (!requireNamespace("BiocManager", quietly = TRUE))
-        install.packages("BiocManager")
-
 BiocManager::install("msa", version = "3.8")
 ```
+
 
 
