@@ -59,7 +59,8 @@ During the installation of packages, if you see a message asking "Update all/som
 2. Type (or copy and paste) the following into the RStudio console and press return
 
 ```
-install.packages(c('ape', 'adegenet', 'phangorn', 'geiger', 'phytools', 'phylogram', 'BiocManager'), dep=TRUE)
+install.packages(c('BiocManager', 'adegenet', 'ape', 
+'geiger', 'phangorn', 'phylogram', 'phytools'), dep=TRUE)
 ```
 
 You will see packages being downloaded and installed. Wait for the installation process to finish (when the output stops and prompt is again displayed).
