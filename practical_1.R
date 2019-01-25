@@ -74,15 +74,15 @@ nodelabels()
 
 # Plot with specific node highlighted
 plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
-nodelabels("Carnivora", PUT-NODE-NUMBER)
-nodelabels("Glires", PUT-NODE-NUMBER)
+nodelabels("Carnivora", 132)
+nodelabels("Glires", 79)
 
 
 # ---------- MULTIPLE SEQUENCE ALIGNMENT ----------
 # Align sequences using the 'msa' package
 
 # Load the unaligned sequences
-sequences <- readDNAStringSet('NADH6.fas', format='fasta')
+sequences <- readDNAStringSet('nadh6.8apes.fasta', format='fasta')
 
 # The msa package provides several alignment tools. By default it uses the 
 # program "ClustalW". To align the sequences using the default options
@@ -95,7 +95,7 @@ aligned_sequences
 print(aligned_sequences, show='complete')
 
 # Save the multiple sequence alignment
-writeXStringSet(unmasked(aligned_sequences), file='NADH6_aligned.fasta')
+writeXStringSet(unmasked(aligned_sequences), file='nadh6.8apes.aln.fasta')
 
 # Try some variations below. For each, save the MSA to a different file and compare in AliView
 
@@ -119,7 +119,7 @@ writeXStringSet(unmasked(aligned_sequences), file='NADH6_aligned.fasta')
 library(ape)
 
 # Read the aligned sequences we had saved to file above
-aligned_sequences <- read.dna('NADH6_aligned.fasta', format='fasta')
+aligned_sequences <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
 
 # Lets see what the alignment looks like
 checkAlignment(aligned_sequences)
@@ -158,9 +158,8 @@ plot(nj_tree)
 add.scale.bar()
 
 # By default the tree is unrooted. Even if it looks OK, _always_ explicitly root the tree
-nj_tree <- root(nj_tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
-nj_tree <- ladderize(nj_tree)
-plot(nj_tree)
+rooted_nj <- ladderize(root(nj_tree, outgroup=c('pig', 'cow'), resolve.root=TRUE))
+plot(rooted_nj)
 add.scale.bar()
 
 # To save a tree
@@ -221,8 +220,8 @@ add.scale.bar()
 par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
 
 # Plot the NJ tree, then the ML tree and add a scale bar
-plot(nj_tree)
-edgelabels(round(nj_tree$edge.length, digits=3))
+plot(rooted_nj)
+edgelabels(round(rooted_nj$edge.length, digits=3))
 add.scale.bar()
 
 plot(ml.tree)
@@ -238,80 +237,57 @@ comparePhylo(nj_tree, ml.tree, plot=TRUE)
 
 # ----------- LARGER EXAMPLE ----------
 
-# Compare mammal trees for two mitochondrial genes
+# Compare trees for two mitochondrial genes
 
-# estimate a neighbour joining tree
+# cyb msa
+cyb_seqs <- readDNAStringSet('cyb.30prim.fasta', format='fasta')
+cyb_aln <- msa(cyb_seqs)
+writeXStringSet(unmasked(cyb_aln), file='cyb.30prim.aln.fasta')
 
-cyb_aln <- read.dna('CYB.aln.ffn', format='fasta')
+# estimate a neighbour joining tree for cyb
+cyb_aln <- read.dna('cyb.30prim.aln.fasta', format='fasta')
 cyb_dist <- dist.dna(cyb_aln)
 cyb_tree <- nj(cyb_dist)
 cyb_tree <- ladderize(root(cyb_tree, outgroup='sus_scrofa', resolve.root=TRUE))
 
-nd6_aln <- read.dna('ND6.aln.ffn', format='fasta')
+# nd6 msa
+nd6_seqs <- readDNAStringSet('nd6.30prim.fasta', format='fasta')
+nd6_seqs <- msa(nd6_seqs)
+writeXStringSet(unmasked(nd6_seqs), file='nd6.30prim.aln.fasta')
+
+# estimate a nj tree for nd6
+nd6_aln <- read.dna('nd6.30prim.aln.fasta', format='fasta')
 nd6_dist <- dist.dna(nd6_aln)
 nd6_tree <- nj(nd6_dist)
 nd6_tree <- ladderize(root(nd6_tree, outgroup='sus_scrofa', resolve.root=TRUE))
 
+# compare the two trees
 comparePhylo(cyb_tree, nd6_tree, plot=TRUE)
 
 association <- cbind(cyb_tree$tip.label, nd6_tree$tip.label)
 cophyloplot(cyb_tree, nd6_tree, assoc = association)
 
-aligned_sequences_pd <- as.phyDat(aln1)
-tre.ini <- nj(dist.dna(aln1, model = "TN93"))
+# estimate cyb tree using maximum likelihood
+aligned_sequences_pd <- as.phyDat(cyb_aln)
+tre.ini <- nj(dist.dna(cyb_aln, model = "TN93"))
 fit.ini <- pml(tre.ini, aligned_sequences_pd, k = 4)
 fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
 ml.tree <- fit$tree
-ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
+ml.tree <- root(ml.tree, outgroup=c('sus_scrofa'), resolve.root=TRUE)
 ml.tree <- ladderize(ml.tree)
+
+# compare with cyb nj tree
+comparePhylo(cyb_tree, ml.tree, plot=TRUE)
+
+# plot one tree on top of the other
+par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
+plot(cyb_tree)
+add.scale.bar()
 plot(ml.tree)
 add.scale.bar()
 
-comparePhylo(njtree2, ml.tree, plot=TRUE)
-
-otuPhylo <- function(phy, cutoff=0.05) {
-  
-  dists <- cophenetic(phy)
-  diag(dists) <- NA
-  pruned <- vector()
-  
-  for (i in phy$tip.label) {
-    if (!(i %in% pruned)) {
-      d <- na.omit(dists[i,])
-      pruned <- c(pruned, names(which(d <= cutoff)))
-    }
-  }
-  
-  if (length(pruned) > 0) {
-    print("Dropping the following taxa:")
-    print(pruned)
-    return(drop.tip(phy, pruned))
-  }
-  else {
-    return(phy)
-  }
-  
-}
+association <- cbind(cyb_tree$tip.label, ml.tree$tip.label)
+cophyloplot(cyb_tree, ml.tree, assoc = association)
 
 
 
-drop <- cyb_tree$tip.label[!(cyb_tree$tip.label %in% apes)]
-cyb_tree <- drop.tip(cyb_tree, drop)
-
-
-
-
-# get subset of sequences
-cyb_aln <- cyb_aln[which(labels(cyb_aln) %in% apes),]
-nd6_aln <- nd6_aln[which(labels(nd6_aln) %in% apes),]
-
-cyb_tree <- otuPhylo(cyb_tree, 0.15)
-
-drop <- nd6_tree$tip.label[!(nd6_tree$tip.label %in% cyb_tree$tip.label)]
-nd6_tree <- drop.tip(nd6_tree, drop)
-
-cyb_aln <- cyb_aln[which(labels(cyb_aln) %in% cyb_tree$tip.label),]
-nd6_aln <- nd6_aln[which(labels(nd6_aln) %in% cyb_tree$tip.label),]
-
-write.FASTA(cyb_aln, file='cyb.30prim.aln.fasta')
-write.FASTA(nd6_aln, file='nd6.30prim.aln.fasta')
