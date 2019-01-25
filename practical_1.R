@@ -1,7 +1,7 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd("~/Documents/2019/biol0030/BIOL3010-ZY-resources/Practical")
+setwd("~/Documents/2019/BIOL0033")
 
 
 # ---------- MULTIPLE SEQUENCE ALIGNMENT ----------
@@ -45,7 +45,7 @@ library(ape)
 # Convert our multiple sequence alignment into the format required by ape:
 
 # TODO: this doesn't work
-aligned_sequences <- msaConvert(aligned_sequences, type='ape::DNAbin')
+# aligned_sequences <- msaConvert(aligned_sequences, type='ape::DNAbin')
 
 # Save the 'msa' file and read it back using 'ape'
 writeXStringSet(unmasked(aligned_sequences), file='test.fasta')
@@ -67,22 +67,64 @@ library(ade4)
 nj_tree <- nj(distances)
 
 # View the tree
-plot(nj_tree)
+plot(ladderize(nj_tree))
+add.scale.bar()
 
 # By default the tree is unrooted. Even if it looks OK, _always_ explicitly root the tree
-rooted_nj_tree <- root(nj_tree, outgroup=c('pig', 'cow'))
+nj_tree <- root(nj_tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
+nj_tree <- ladderize(nj_tree)
+plot(nj_tree)
+add.scale.bar()
 
 # Plot the rooted tree. how does it look different?
 
 # ---------- ESTIMATE TREE BY MAXIMUM LIKELIHOOD ----------
-library(phangorn)
-dna2 <- as.phyDat(aligned_sequences)
-tre.ini <- nj(dist.dna(aligned_sequences, model = "TN93"))
-fit.ini <- pml(tre.ini, dna2, k = 4)
-fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
-ml.tree <- fit$tree
-ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'))
-ml.tree <- ladderize(ml.tree)
-plot(ml.tree)
 
-install.packages(c('ape', 'adegenet', 'phangorn', 
+# The 'phangorn' library provides several methods of pylogeny estimation
+library(phangorn)
+
+# Convert the aligned sequences loaded using 'ape' into the format required by phangorn
+aligned_sequences_pd <- as.phyDat(aligned_sequences)
+
+# Get an initial tree to optimise
+tre.ini <- nj(dist.dna(aligned_sequences, model = "JC"))
+
+# Package up the tree, alignment and model information into a likelihhod
+fit.ini <- pml(tre.ini, aligned_sequences_pd, k = 4)
+
+# Optimise the tree+alignment+model using maximum likelihood (ML)
+fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+
+# Get the ML tree
+ml.tree <- fit$tree
+
+# Root the ML tree using the outgroup species
+ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
+ml.tree <- ladderize(ml.tree)
+
+# Plot the ML tree
+plot(ml.tree)
+add.scale.bar()
+
+
+
+# ---------- COMPARING TREES ----------
+
+# Let's compare the NJ tree with the ML tree
+# i.e. nj_tree & ml.tree
+
+# We want a plot with plots on 2 rows, 1 column (mfrow). Use small margins (mai)
+par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
+
+# Plot the NJ tree, then the ML tree and add a scale bar
+plot(nj_tree, x.lim=c(0,1))
+plot(ml.tree, x.lim=c(0,1))
+add.scale.bar()
+
+# Calculate the Robinson-Foulds distance between the two trees
+# If they are identical the RF distance is 0
+rf_dist <- RF.dist(nj_tree, ml.tree)
+
+# Compare the phylogenies visually
+comparePhylo(nj_tree, ml.tree, plot=TRUE)
+
