@@ -40,12 +40,11 @@ Once you have installed R and RStudio, check that the programs are installed cor
 version$version.string
 ```
 
-My final output looks like this:
+My output looks like this:
 
 ```
 > version$version.string
 [1] "R version 3.5.2 (2018-12-20)"
->
 ```
 
 ## Install packages
@@ -65,12 +64,46 @@ install.packages(c('BiocManager', 'adegenet', 'ape',
 
 You will see packages being downloaded and installed. Wait for the installation process to finish (when the output stops and prompt is again displayed). It can take some time, be patient!
 
-3. Install packages for multiple sequence alignment and tree visualation. Copy & paste the following line into the RStudio console and press return
+3. Install packages for multiple sequence alignment and tree visualisation. Copy & paste the following lines into the RStudio console and press return
 
 ```
 BiocManager::install("msa", version = "3.8")
 BiocManager::install("ggtree", version = "3.8")
 ```
 
+4. Check that all the packages have been installed and can be loaded. Run the following in the R console
 
+```
+packages = c('BiocManager', 'adegenet', 'ape', 
+'geiger', 'phangorn', 'phylogram', 'phytools')
 
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE)
+        library(x, character.only = TRUE)
+    }
+})
+```
+
+You should see messages such as "Loading required package: xxxx" for each of the packages. There might be some info messages but no errors.
+
+5. Finally, check the packages are in your search path. Type the command:
+
+```
+search()
+```
+
+The above command looks like this:
+
+```
+ [1] ".GlobalEnv"           "package:phytools"     "package:maps"         "package:phylogram"   
+ [5] "package:geiger"       "package:adegenet"     "package:BiocManager"  "package:phangorn"    
+ [9] "package:ade4"         "package:ape"          "package:msa"          "package:Biostrings"  
+[13] "package:XVector"      "package:IRanges"      "package:S4Vectors"    "package:stats4"      
+[17] "package:BiocGenerics" "package:parallel"     "tools:rstudio"        "package:stats"       
+[21] "package:graphics"     "package:grDevices"    "package:utils"        "package:datasets"    
+[25] "package:methods"      "Autoloads"            "package:base"        
+```
+
+Check that all required "packages:XXX"" have successfully loaded ('BiocManager', 'adegenet', 'ape', 
+'geiger', 'phangorn', 'phylogram', 'phytools')
