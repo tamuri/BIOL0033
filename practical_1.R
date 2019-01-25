@@ -1,7 +1,7 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd("~/Documents/2019/BIOL0033")
+setwd("~/Documents/2019/biol0030/BIOL0033")
 
 # ---------- BASIC PHYLOGENY PLOTTING -----------
 
@@ -91,6 +91,9 @@ aligned_sequences
 # Look at the entire alignment, not truncated
 print(aligned_sequences, show='complete')
 
+# Save the multiple sequence alignment
+writeXStringSet(unmasked(aligned_sequences), file='NADH6_aligned.fasta')
+
 # More:
 # 
 # * Try two other algorithms: ClustalOmega and MUSCLE
@@ -114,12 +117,11 @@ library(ape)
 # TODO: this doesn't work
 # aligned_sequences <- msaConvert(aligned_sequences, type='ape::DNAbin')
 
-# Save the 'msa' file and read it back using 'ape'
-writeXStringSet(unmasked(aligned_sequences), file='test.fasta')
-aligned_sequences <- read.FASTA('test.fasta', type='DNA')
+# Read the aligned sequences we had saved to file above
+aligned_sequences <- read.FASTA('NADH6_aligned.fasta', type='DNA')
 
 # Calculate pairwise distances between sequences
-distances <- dist.dna(aligned_sequences)
+distances <- dist.dna(aligned_sequences, model='JC')
 
 # Look at the distance matrix
 distances
@@ -154,7 +156,7 @@ library(phangorn)
 aligned_sequences_pd <- as.phyDat(aligned_sequences)
 
 # Get an initial tree to optimise
-tre.ini <- nj(dist.dna(aligned_sequences, model = "JC"))
+tre.ini <- nj(dist.dna(aligned_sequences, model = "TN93"))
 
 # Package up the tree, alignment and model information into a likelihhod
 fit.ini <- pml(tre.ini, aligned_sequences_pd, k = 4)
@@ -166,7 +168,7 @@ fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = T
 ml.tree <- fit$tree
 
 # Root the ML tree using the outgroup species
-ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
+ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'))
 ml.tree <- ladderize(ml.tree)
 
 # Plot the ML tree
@@ -184,8 +186,9 @@ add.scale.bar()
 par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
 
 # Plot the NJ tree, then the ML tree and add a scale bar
-plot(nj_tree, x.lim=c(0,1))
-plot(ml.tree, x.lim=c(0,1))
+plot(nj_tree)
+add.scale.bar()
+plot(ml.tree)
 add.scale.bar()
 
 # Calculate the Robinson-Foulds distance between the two trees
@@ -194,4 +197,58 @@ rf_dist <- RF.dist(nj_tree, ml.tree)
 
 # Compare the phylogenies visually
 comparePhylo(nj_tree, ml.tree, plot=TRUE)
+
+# ----------- LARGER EXAMPLE ----------
+
+library(msa)
+library(ape)
+library(phangorn)
+
+# read the unaligned sequences
+sequences <- readDNAStringSet('NADH6.fas', format='fasta')
+
+# try a few different alignment strategies (check in aliview - how do they differ?)
+aligned_sequences <- msa(sequences, "Muscle", verbose = TRUE)
+writeXStringSet(unmasked(aligned_sequences), file='NADH6.aln1.fasta')
+
+aligned_sequences <- msa(sequences, "Muscle", verbose = TRUE, gapOpening = 10, gapExtension = 10)
+writeXStringSet(unmasked(aligned_sequences), file='NADH6.aln2.fasta')
+
+aligned_sequences <- msa(sequences, "Muscle", verbose = TRUE, gapOpening = 0, gapExtension = 0)
+writeXStringSet(unmasked(aligned_sequences), file='NADH6.aln3.fasta')
+
+# estimate a neighbour joining tree
+
+aln1 <- read.FASTA('NADH6.aln1.fasta', type='DNA')
+aln2 <- read.FASTA('NADH6.aln2.fasta', type='DNA')
+aln3 <- read.FASTA('NADH6.aln3.fasta', type='DNA')
+
+dist1 <- dist.dna(aln1)
+dist2 <- dist.dna(aln2)
+dist3 <- dist.dna(aln3)
+
+njtree1 <- njs(dist1)
+njtree2 <- njs(dist2)
+njtree3 <- njs(dist3)
+
+plot(njtree3)
+add.scale.bar()
+
+njtree1 <- ladderize(root(njtree1, outgroup=c('pig', 'cow'), resolve.root = TRUE))
+njtree2 <- ladderize(root(njtree2, outgroup=c('pig', 'cow'), resolve.root = TRUE))
+njtree3 <- ladderize(root(njtree3, outgroup=c('pig', 'cow'), resolve.root = TRUE))
+
+comparePhylo(njtree1, njtree2, plot=TRUE)
+
+aligned_sequences_pd <- as.phyDat(aln1)
+tre.ini <- nj(dist.dna(aln1, model = "TN93"))
+fit.ini <- pml(tre.ini, aligned_sequences_pd, k = 4)
+fit <- optim.pml(fit.ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+ml.tree <- fit$tree
+ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'), resolve.root=TRUE)
+ml.tree <- ladderize(ml.tree)
+plot(ml.tree)
+add.scale.bar()
+
+comparePhylo(njtree2, ml.tree, plot=TRUE)
 
