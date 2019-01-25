@@ -74,8 +74,8 @@ BiocManager::install("ggtree", version = "3.8")
 4. Check that all the packages have been installed and can be loaded. Run the following in the R console
 
 ```
-packages = c('BiocManager', 'adegenet', 'ape', 
-'geiger', 'phangorn', 'phylogram', 'phytools')
+packages = c('BiocManager', 'adegenet', 'ape', 'geiger', 
+'phangorn', 'phylogram', 'phytools', 'msa', 'ggtree')
 
 package.check <- lapply(packages, FUN = function(x) {
     if (!require(x, character.only = TRUE)) {
@@ -85,12 +85,12 @@ package.check <- lapply(packages, FUN = function(x) {
 })
 ```
 
-You should see messages such as "Loading required package: xxxx" for each of the packages. There might be some info messages but no errors.
+You should see messages such as "Loading required package: xxxx" for each of the packages. There might be some info messages ("The following object is masked..." etc.) but no errors.
 
 5. Finally, check the packages are in your search path. Type the command:
 
 ```
-packages = c('BiocManager', 'adegenet', 'ape', 'geiger', 'phangorn', 'phylogram', 'phytools')
+packages = c('BiocManager', 'adegenet', 'ape', 'geiger', 'phangorn', 'phylogram', 'phytools', 'msa', 'ggtree')
 loaded <- search()
 found <- loaded[grepl('^package:', loaded)]
 found <- unlist(lapply(strsplit(found, split=':'), function(y) y[2]))
@@ -100,7 +100,7 @@ packages %in% found
 The output should be
 
 ```
-[1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE
+[1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
 ```
 
 If it isn't, carefully install the packages again in steps 2 and 3 one at a time and make sure there are no errors
