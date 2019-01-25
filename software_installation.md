@@ -8,7 +8,7 @@ The practicals require:
 2. RStudio development environment
 3. Several specific packages and libraries for phylogenetic analysis
 
-If you plan on using [Desktop@UCL Anywhere](https://www.ucl.ac.uk/isd/services/computers/remote-access/desktopucl-anywhere) you can skip steps 2 & 3 because R and RStudio are already installed.
+If you plan on using [Desktop@UCL Anywhere](https://www.ucl.ac.uk/isd/services/computers/remote-access/desktopucl-anywhere) you can skip steps 1 & 2 because R and RStudio are already installed.
 
 Optional (but recommended) tools to install are:
 
