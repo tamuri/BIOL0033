@@ -90,20 +90,24 @@ You should see messages such as "Loading required package: xxxx" for each of the
 5. Finally, check the packages are in your search path. Type the command:
 
 ```
-search()
+packages = c('BiocManager', 'adegenet', 'ape', 'geiger', 'phangorn', 'phylogram', 'phytools')
+loaded <- search()
+found <- loaded[grepl('^package:', loaded)]
+found <- unlist(lapply(strsplit(found, split=':'), function(y) y[2]))
+packages %in% found
 ```
 
-The above command looks like this:
+The output should be
 
 ```
- [1] ".GlobalEnv"           "package:phytools"     "package:maps"         "package:phylogram"   
- [5] "package:geiger"       "package:adegenet"     "package:BiocManager"  "package:phangorn"    
- [9] "package:ade4"         "package:ape"          "package:msa"          "package:Biostrings"  
-[13] "package:XVector"      "package:IRanges"      "package:S4Vectors"    "package:stats4"      
-[17] "package:BiocGenerics" "package:parallel"     "tools:rstudio"        "package:stats"       
-[21] "package:graphics"     "package:grDevices"    "package:utils"        "package:datasets"    
-[25] "package:methods"      "Autoloads"            "package:base"        
+[1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE
 ```
 
-Check that all required "packages:XXX"" have successfully loaded ('BiocManager', 'adegenet', 'ape', 
-'geiger', 'phangorn', 'phylogram', 'phytools')
+If it isn't, carefully install the packages again in steps 2 and 3 one at a time and make sure there are no errors
+
+```
+install.packages('BiocManager')
+```
+
+etc.
+
