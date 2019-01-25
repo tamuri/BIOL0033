@@ -10,15 +10,16 @@ The practicals require:
 
 Optional (but recommended) tools to install are:
 
-If you are on Windows or Linux, you will need to install [Java Runtime](https://www.java.com/en/download/) to use the following:
-
-1. [AliView](https://ormbunkar.se/aliview/) - sequence alignment viewer
-2. [Figtree](http://tree.bio.ed.ac.uk/software/figtree/) - phylogenetic tree viewer
+1. If you are on Windows or Linux, you will need to install [Java Runtime](https://www.java.com/en/download/) for the following programs.
+2. [AliView](https://ormbunkar.se/aliview/) - sequence alignment viewer
+3. [Figtree](http://tree.bio.ed.ac.uk/software/figtree/) - phylogenetic tree viewer
 
 ## Installing the R programming language
 
 1. Download the [R distribution](https://cran.ma.imperial.ac.uk/) for your platform (Windows, Mac and Linux packages available).
 2. Run the executable and follow the instructions. The default options are fine.
+
+Warning: you may already have an old version of R installed on your machine. In this case, install the latest R version from (1) above and delete the old version. Some packages we use require the latest version of R.
 
 ## Installing RStudio
 
@@ -52,6 +53,7 @@ My final output looks like this:
 Researchers and developers have written many packages and libraries for the R platform for phylogenetics. See the "[phylogenetics task view](https://cran.r-project.org/web/views/Phylogenetics.html)" for an overview of many of the available packages. We only install and use some of these packages for our practicals.
 
 Important: during package installation, you may see a message asking "Update all/some/none? [a/s/n]". Type `a` and press return.
+
 
 1. Find the 'Console' window. The symbol `>` indicates a prompt waiting for your input.
 2. Type (or copy and paste) the following into the RStudio console and press return
