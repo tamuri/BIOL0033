@@ -3,6 +3,73 @@
 
 setwd("~/Documents/2019/BIOL0033")
 
+# ---------- BASIC PHYLOGENY PLOTTING -----------
+
+# Load the 'ape' phylogenetics package
+library(ape)
+
+# Trees are typically stored sing the Newick format
+my_newick <- '(a, (b, c));'
+
+# Plot the tree
+# Learn how the Newick format represents the plotted tree
+my_tree <- read.tree(text=my_newick)
+print(my_tree)
+plot(my_tree, type='phylogram')
+
+# Try the following Newick strings and plot each
+# 1. (frog, human, bird);
+# 2. (gorilla:1, (human:2, chimp:3):4);
+
+# What is the Newick string for the following tree. Test it to make sure
+#
+#  /-----+ sus_scrofa                                                   
+#  |                                                                     
+# =+      /-----+ tursiops_truncatus                             
+#  |      |                                                      
+#  \------+           /-----+ capra_hircus     
+#         |     /-----+                        
+#         \-----+     \-----+ ovis_aries       
+#               |                                       
+#               \-----+ bos_taurus                      
+
+# Read in a tree from a file (take a look at the file too)
+mammals_72sp <- read.tree(file='72sp.tree')
+
+# Get summary of tree
+mammals_72sp
+
+# Get tips
+mammals_72sp$tip.label
+
+# Make the margins a bit smaller for the plots
+par(mai=c(0.1, 0.1, 0.1, 0.1))
+
+# Explore different ways of plotting the tree (one at a time)
+plot(mammals_72sp, type='cladogram')
+
+plot(mammals_72sp, type='cladogram', use.edge.length = FALSE)
+
+plot(mammals_72sp, type='unrooted')
+
+plot(mammals_72sp, type='fan')
+
+plot(mammals_72sp, type='radial')
+
+plot(mammals_72sp, type='phylogram')
+add.scale.bar()
+
+plot(mammals_72sp, type='phylogram', align.tip.label=TRUE)
+add.scale.bar()
+
+# Get the node numbers for internal nodes
+plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
+nodelabels()
+
+# Plot with specific node highlighted
+plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
+nodelabels("Carnivora", PUT-NODE-NUMBER)
+nodelabels("Glires", PUT-NODE-NUMBER)
 
 # ---------- MULTIPLE SEQUENCE ALIGNMENT ----------
 # Align sequences using the 'msa' package
