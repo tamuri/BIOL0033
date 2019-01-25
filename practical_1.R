@@ -85,4 +85,4 @@ ml.tree <- root(ml.tree, outgroup=c('pig', 'cow'))
 ml.tree <- ladderize(ml.tree)
 plot(ml.tree)
 
-
+install.packages(c('ape', 'adegenet', 'phangorn', 
