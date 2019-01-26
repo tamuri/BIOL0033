@@ -210,7 +210,6 @@ add.scale.bar()
 # Maybe a bit clearer without the outgroup
 plot(drop.tip(ml_tree, outg))
 
-
 # ---------- COMPARING TREES ----------
 
 # Let's compare the NJ tree with the ML tree
@@ -289,8 +288,19 @@ add.scale.bar()
 association <- cbind(tree1$tip.label, ml_tree$tip.label)
 cophyloplot(tree1, ml_tree, assoc = association)
 
-# compare the distances between tree
-d_tree1 <- cophenetic(tree1)
-d_ml_tree <- cophenetic(ml_tree)
-plot(d_tree1, d_ml_tree)
+# is nj tree a good fit to the observed pairwise distances?
+dist2 <- as.dist(cophenetic(tree1))
+plot(dist1, dist2)
 abline(0,1)
+
+
+# compare the distances of nj and ml trees
+d_nj <- cophenetic(tree1)
+d_ml <- cophenetic(ml_tree)
+plot(d_nj, d_ml)
+abline(0,1)
+
+d_upgma <- as.dist(cophenetic(upgma_tree))
+plot(D, d_upgma)
+abline(0,1)
+

@@ -1,5 +1,26 @@
 # scratch
 
+# bootstrapping
+ml_opt <- function(a) {
+  d <- dist.dna(a)
+  t <- nj(d)
+  fini <- pml(t, as.phyDat(a), k=4)
+  fit <- optim.pml(fini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+  return(fit$tree)
+}
+
+boots <- boot.phylo(ml_tree, aln, function(x) ml_opt(x))
+nodelabels(boots)
+
+
+
+boots <- boot.phylo(tree1, aln1, function(e) root(nj(dist.dna(e)), outgroup='sus_scrofa'))
+nodelabels(boots)
+
+
+
+# removing similar taxa
+
 comparePhylo(cyb_tree, ml.tree, plot=TRUE)
 
 otuPhylo <- function(phy, cutoff=0.05) {
