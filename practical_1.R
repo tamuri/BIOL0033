@@ -1,7 +1,7 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd("~/Documents/2019/biol0030/BIOL0033")
+setwd("~/Documents/2019/BIOL0033")
 
 # ---------- LOAD ALL THE REQUIRED PACKAGES ----------
 
