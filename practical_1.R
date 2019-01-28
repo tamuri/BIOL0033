@@ -3,7 +3,7 @@
 
 setwd("~/Documents/2019/BIOL0033")
 
-# ---------- LOAD ALL THE REQUIRED PACKAGES ----------
+# ---------- LOAD THE REQUIRED PACKAGES ----------
 
 # 'ape' and 'phangorn' provide vast array of phylogenetic analyses
 library(ape)
@@ -14,16 +14,15 @@ library(msa)
 
 # ---------- BASIC PHYLOGENY & PLOTTING -----------
 
-# Trees are typically stored sing the Newick format
+# Trees are commonly using the Newick format
 my_newick <- '(a, (b, c), d);'
 
-# Plot the tree
-# Learn how the Newick format represents the plotted tree
+# Plot the tree defined by the string above
 my_tree <- read.tree(text=my_newick)
 print(my_tree)
 plot(my_tree, type='unrooted')
 
-# Reroot the tree using a different outgroup
+# Before we can make any evolutionary inference, we need to root the tree using an outgroup
 rerooted_tree <- root(my_tree, outgroup = 'a', resolve.root = TRUE)
 plot(rerooted_tree, type='phylogram')
 
@@ -32,7 +31,7 @@ plot(rerooted_tree, type='phylogram')
 # 1. Plot the following trees:
 #
 #   i) (frog, human, bird);
-#   ii) (gorilla:1, (human:2, chimp:3):4);
+#  ii) (gorilla:1, (human:2, chimp:3):4);
 #
 # 2. What is the Newick string for the following tree. (Plot it to make sure)
 #
@@ -48,11 +47,12 @@ plot(rerooted_tree, type='phylogram')
 #
 # 3. Write the Newick strings for each of the 3 unrooted trees for 4 species (plot to check)
 #
-# 4. In the example "my_newick" example tree above, what is taxon A most closely related to if
-#    i) tree is rooted by 'a'
-#   ii) tree is rooted by 'b'
-#  iii) tree is rooted by 'c'
-#   iv) tree is rooted by 'd'
+# 4. In the "my_newick" example tree above, what is taxon A most closely related to 
+#    if the unrooted tree is rooted by
+#    i) taxon a
+#   ii) taxon b
+#  iii) taxon c
+#   iv) taxon d
 
 # Read in a tree from a file (take a look at the file too)
 mammals_72sp <- read.tree(file='72sp.tree')
@@ -113,15 +113,15 @@ writeXStringSet(unmasked(aln), file='nadh6.8apes.aln.fasta')
 
 # EXERCISE 2:
 #
-# Try some variations. For each variation, save the MSA to a different file and compare in AliView
+# Try different options. For each variation, save the MSA to a different file and compare in AliView
 #
 # 1. Try a different algorithm: ClustalOmega or MUSCLE
-#    e.g. aln <- msa(seqs, "Muscle")`
+#    e.g. aln <- msa(seqs, "Muscle")
 #
 # 2. Try varying the gapOpening and gapExtension values
 #    e.g. msa(seqs, gapOpening=0, gapExtension=0)
 #    e.g. msa(seqs, gapOpening=1000, gapExtension=10000)
-#    What's happening here? What are the differences?
+#    What's happening here? How do the resulting MSAs differ?
 
   
 # ---------- CALCULATE PAIRWISE DISTANCES ----------
@@ -146,27 +146,27 @@ D
 #
 # 1. Try a few other substitutions models to calculate the pairwise distances
 #   e.g. D2 <- dist.dna(aln, model='F84')
-#   how do the distances compare under different models
+#   how do the distances compare under different models?
 #
 # 2. The Gamma model of among site rate variation (ASRV)
 
   # Plot a Gamma distribution for high-degree of site rate variation,
-  # where the alpha parameter is 0.5 
-  alpha <- beta <- 0.5
-  curve(dgamma(x, shape=alpha, rate=beta), from=0, to=10)
+  # e.g. alpha parameter is 0.5 
+  alpha <- 0.5
+  curve(dgamma(x, shape=alpha, rate=alpha), from=0, to=10)
   
   # Plot a Gamma distribution for very little site rate variation
-  alpha <- beta <- 100
-  curve(dgamma(x, shape=alpha, rate=beta), from=0, to=2)
+  alpha <- 100
+  curve(dgamma(x, shape=alpha, rate=alpha), from=0, to=2)
 
-# Calculate the pairwise distances using a model of ASRV (give the alpha parameter)
+# Calculate the pairwise distances using a model with ASRV (supply the alpha parameter)
 # e.g. dist.dna(aln, model='F84', gamma=0.5)
-# How do the distances compare with a model without ASRV?
+# How do the distances compare for a model with and without ASRV?
 
 
-# ---------- CREATE A UPGMA TREE USING DISTANCES ----------
+# ---------- CREATE A UPGMA TREE USING DISTANCE MATRIX ----------
 
-# setup the outgroup for the sequences
+# state the outgroup for the sequences
 outg <- c('pig', 'cow')
 
 upgma_tree <- upgma(D)
@@ -186,7 +186,8 @@ write.tree(upgma_tree, file="nadh6_upgma.tree")
 
 # Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
-# ---------- CREATE A NEIGHBOUR-JOINING TREE USING DISTANCES ----------
+
+# ---------- CREATE A NEIGHBOUR-JOINING TREE USING DISTANCE MATRIX ----------
 
 # Use the distances we calculated above
 nj_tree <- nj(D)
