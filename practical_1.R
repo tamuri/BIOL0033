@@ -12,22 +12,29 @@ library(phangorn)
 # 'msa' provides multiple sequence alignment
 library(msa)
 
-# ---------- BASIC PHYLOGENY PLOTTING -----------
+# ---------- BASIC PHYLOGENY & PLOTTING -----------
 
 # Trees are typically stored sing the Newick format
-my_newick <- '(a, (b, c));'
+my_newick <- '(a, (b, c), d);'
 
 # Plot the tree
 # Learn how the Newick format represents the plotted tree
 my_tree <- read.tree(text=my_newick)
 print(my_tree)
-plot(my_tree, type='phylogram')
+plot(my_tree, type='unrooted')
 
-# Try the following Newick strings and plot each
-# 1. (frog, human, bird);
-# 2. (gorilla:1, (human:2, chimp:3):4);
+# Reroot the tree using a different outgroup
+rerooted_tree <- root(my_tree, outgroup = 'a', resolve.root = TRUE)
+plot(rerooted_tree, type='phylogram')
 
-# What is the Newick string for the following tree. Test it to make sure
+# EXERCISE 1:
+#
+# 1. Plot the following trees:
+#
+#   i) (frog, human, bird);
+#   ii) (gorilla:1, (human:2, chimp:3):4);
+#
+# 2. What is the Newick string for the following tree. (Plot it to make sure)
 #
 #  /-----+ sus_scrofa                                                   
 #  |                                                                     
@@ -38,6 +45,14 @@ plot(my_tree, type='phylogram')
 #         \-----+     \-----+ ovis_aries       
 #               |                                       
 #               \-----+ bos_taurus                      
+#
+# 3. Write the Newick strings for each of the 3 unrooted trees for 4 species (plot to check)
+#
+# 4. In the example "my_newick" example tree above, what is taxon A most closely related to if
+#    i) tree is rooted by 'a'
+#   ii) tree is rooted by 'b'
+#  iii) tree is rooted by 'c'
+#   iv) tree is rooted by 'd'
 
 # Read in a tree from a file (take a look at the file too)
 mammals_72sp <- read.tree(file='72sp.tree')
@@ -48,8 +63,8 @@ mammals_72sp
 # Get tips
 mammals_72sp$tip.label
 
-# Make the margins a bit smaller for the plots
-par(mai=c(0.1, 0.1, 0.1, 0.1))
+# Get the tree length (sum of branch lengths)
+sum(mammals_72sp$edges)
 
 # Explore different ways of plotting the tree (one at a time)
 plot(mammals_72sp, type='cladogram')
@@ -68,8 +83,7 @@ add.scale.bar()
 plot(mammals_72sp, type='phylogram', align.tip.label=TRUE)
 add.scale.bar()
 
-# Get the node numbers for internal nodes
-plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
+# Add the node numbers for internal nodes
 nodelabels()
 
 # Plot with specific node highlighted
@@ -97,19 +111,18 @@ print(aln, show='complete')
 # Save the multiple sequence alignment
 writeXStringSet(unmasked(aln), file='nadh6.8apes.aln.fasta')
 
-# Try some variations below. For each, save the MSA to a different file and compare in AliView
+# EXERCISE 2:
+#
+# Try some variations. For each variation, save the MSA to a different file and compare in AliView
+#
+# 1. Try a different algorithm: ClustalOmega or MUSCLE
+#    e.g. aln <- msa(seqs, "Muscle")`
+#
+# 2. Try varying the gapOpening and gapExtension values
+#    e.g. msa(seqs, gapOpening=0, gapExtension=0)
+#    e.g. msa(seqs, gapOpening=1000, gapExtension=10000)
+#    What's happening here? What are the differences?
 
-# Try a different algorithm: ClustalOmega or MUSCLE
-# e.g. aln <- msa(seqs, "Muscle")`
-
-# Try varying the gapOpening and gapExtension values
-# e.g. aln <- msa(seqs, "Muscle", gapOpening=0, gapExtension=0)
-# e.g. aln <- msa(seqs, "Muscle", gapOpening=1000, gapExtension=1000)
-
-
-# ---------- VISUALISE TREES ----------
-# https://4va.github.io/biodatasci/r-ggtree.html
-  
   
 # ---------- CALCULATE PAIRWISE DISTANCES ----------
 
@@ -121,13 +134,34 @@ aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
 # Lets see what the alignment looks like
 checkAlignment(aln)
 
-# What kind of things should we look out for?
+# What kind of things should we look for to check the quality of our alignment?
 
 # Calculate pairwise distances between sequences
 D <- dist.dna(aln, model='JC')
 
 # Look at the distance matrix
 D
+
+# EXERCISE 3:
+#
+# 1. Try a few other substitutions models to calculate the pairwise distances
+#   e.g. D2 <- dist.dna(aln, model='F84')
+#   how do the distances compare under different models
+#
+# 2. The Gamma model of among site rate variation (ASRV)
+
+  # Plot a Gamma distribution for high-degree of site rate variation,
+  # where the alpha parameter is 0.5 
+  alpha <- beta <- 0.5
+  curve(dgamma(x, shape=alpha, rate=beta), from=0, to=10)
+  
+  # Plot a Gamma distribution for very little site rate variation
+  alpha <- beta <- 100
+  curve(dgamma(x, shape=alpha, rate=beta), from=0, to=2)
+
+# Calculate the pairwise distances using a model of ASRV (give the alpha parameter)
+# e.g. dist.dna(aln, model='F84', gamma=0.5)
+# How do the distances compare with a model without ASRV?
 
 
 # ---------- CREATE A UPGMA TREE USING DISTANCES ----------
@@ -139,6 +173,8 @@ upgma_tree <- upgma(D)
 upgma_tree <- ladderize(root(upgma_tree, outgroup=outg, resolve.root = TRUE))
 plot(upgma_tree)
 
+# Q: What's the distinctive feature of a UPGMA tree? (look at the plot)
+
 # look at the branch lengths
 upgma_tree$edge.length
 
@@ -147,6 +183,8 @@ write.tree(upgma_tree)
 
 # save the tree to file
 write.tree(upgma_tree, file="nadh6_upgma.tree")
+
+# Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
 # ---------- CREATE A NEIGHBOUR-JOINING TREE USING DISTANCES ----------
 
@@ -171,7 +209,8 @@ write.tree(nj_tree, file = 'nadh6_nj.tree')
 # Use the phangorn library
 aln <- read.phyDat('nadh6.8apes.aln.fasta', format = "fasta")
 
-rnd_tree <- random.addition(aln)
+# Use a random starting tree
+rnd_tree <- rtree(length(aln), tip.label = names(aln))
 plot(rnd_tree)
 
 # the parsimony score for the random starting tree
@@ -235,7 +274,7 @@ RF.dist(nj_tree, ml_tree)
 # Compare the phylogenies visually
 comparePhylo(nj_tree, ml_tree, plot=TRUE)
 
-# ----------- LARGER EXAMPLE ----------
+# ----------- LARGER EXAMPLE (NOT COMPLETE!) ----------
 
 # Compare trees for two mitochondrial genes
 
