@@ -14,7 +14,7 @@ library(msa)
 
 # ---------- BASIC PHYLOGENY & PLOTTING -----------
 
-# Trees are commonly using the Newick format
+# Trees are commonly defined using the Newick format
 my_newick <- '(a, (b, c), d);'
 
 # Plot the tree defined by the string above
