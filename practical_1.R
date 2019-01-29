@@ -166,11 +166,8 @@ D
 
 # ---------- CREATE A UPGMA TREE USING DISTANCE MATRIX ----------
 
-# state the outgroup for the sequences
-outg <- c('pig', 'cow')
-
 upgma_tree <- upgma(D)
-upgma_tree <- ladderize(root(upgma_tree, outgroup=outg, resolve.root = TRUE))
+upgma_tree <- ladderize(upgma_tree)
 plot(upgma_tree)
 
 # Q: What's the distinctive feature of a UPGMA tree? (look at the plot)
@@ -186,8 +183,10 @@ write.tree(upgma_tree, file='nadh6_upgma.tree')
 
 # Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
-
 # ---------- CREATE A NEIGHBOUR-JOINING TREE USING DISTANCE MATRIX ----------
+
+# state the outgroup for the sequences
+outg <- c('pig', 'cow')
 
 # Use the distances we calculated above
 nj_tree <- nj(D)
