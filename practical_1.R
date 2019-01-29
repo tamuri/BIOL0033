@@ -1,7 +1,7 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd("~/Documents/2019/BIOL0033")
+setwd('~/Documents/2019/BIOL0033')
 
 # ---------- LOAD THE REQUIRED PACKAGES ----------
 
@@ -47,7 +47,7 @@ plot(rerooted_tree, type='phylogram')
 #
 # 3. Write the Newick strings for each of the 3 unrooted trees for 4 species (plot to check)
 #
-# 4. In the "my_newick" example tree above, what is taxon A most closely related to 
+# 4. In the 'my_newick' example tree above, what is taxon A most closely related to 
 #    if the unrooted tree is rooted by
 #    i) taxon a
 #   ii) taxon b
@@ -88,8 +88,8 @@ nodelabels()
 
 # Plot with specific node highlighted
 plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
-nodelabels("Carnivora", 132)
-nodelabels("Glires", 79)
+nodelabels('Carnivora', 132)
+nodelabels('Glires', 79)
 
 
 # ---------- MULTIPLE SEQUENCE ALIGNMENT ----------
@@ -99,7 +99,7 @@ nodelabels("Glires", 79)
 seqs <- readDNAStringSet('nadh6.8apes.fasta', format='fasta')
 
 # The msa package provides several alignment tools. By default it uses the 
-# program "ClustalW". To align the sequences using the default options
+# program 'ClustalW'. To align the sequences using the default options
 aln <- msa(seqs)
 
 # Take a look at the alignment
@@ -116,7 +116,7 @@ writeXStringSet(unmasked(aln), file='nadh6.8apes.aln.fasta')
 # Try different options. For each variation, save the MSA to a different file and compare in AliView
 #
 # 1. Try a different algorithm: ClustalOmega or MUSCLE
-#    e.g. aln <- msa(seqs, "Muscle")
+#    e.g. aln <- msa(seqs, 'Muscle')
 #
 # 2. Try varying the gapOpening and gapExtension values
 #    e.g. msa(seqs, gapOpening=0, gapExtension=0)
@@ -182,7 +182,7 @@ upgma_tree$edge.length
 write.tree(upgma_tree)
 
 # save the tree to file
-write.tree(upgma_tree, file="nadh6_upgma.tree")
+write.tree(upgma_tree, file='nadh6_upgma.tree')
 
 # Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
@@ -208,7 +208,7 @@ write.tree(nj_tree, file = 'nadh6_nj.tree')
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
 
 # Use the phangorn library
-aln <- read.phyDat('nadh6.8apes.aln.fasta', format = "fasta")
+aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
 
 # Use a random starting tree
 rnd_tree <- rtree(length(aln), tip.label = names(aln))
@@ -227,7 +227,7 @@ write.tree(pars_tree)
 
 # we can look at the changes on the tree for any given site. look at the 12th site
 anc.pars <- ancestral.pars(pars_tree, aln)
-plotAnc(pars_tree, anc.pars, attr(anc.pars, "index")[12])
+plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 
 # ---------- ESTIMATE TREE BY MAXIMUM LIKELIHOOD ----------
 
