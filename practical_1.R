@@ -240,6 +240,6 @@ plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 #
 # 1. What's the definition of a parsimony informative site? 
 #
-# 2. How many parsimony informative sites are in the alignment?
+# 2. What's the parsimony score for site 12 (assume uniform cost matrix)?
 #
-# 3. What's the parsimony score for site 12 (assume uniform cost matrix)?
+# 3. Extra credit: how many parsimony sites in the alignment?
