@@ -1,7 +1,7 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd('~/Documents/2019/BIOL0033')
+setwd('~/Documents/2019/biol0003/BIOL0033')
 
 # ---------- LOAD THE REQUIRED PACKAGES ----------
 
@@ -234,12 +234,11 @@ write.tree(pars_tree)
 
 # we can look at the changes on the tree for any given site. look at the 12th site
 anc.pars <- ancestral.pars(pars_tree, aln)
-plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
+plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[171])
 
 # EXERCISE 5:
 #
 # 1. What's the definition of a parsimony informative site? 
 #
 # 2. What's the parsimony score for site 12 (assume uniform cost matrix)?
-#
-# 3. Extra credit: how many parsimony sites in the alignment?
+
