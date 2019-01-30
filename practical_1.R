@@ -69,7 +69,12 @@ sum(mammals_72sp$edges)
 # Explore different ways of plotting the tree (one at a time)
 plot(mammals_72sp, type='cladogram')
 
-plot(mammals_72sp, type='cladogram', use.edge.length = FALSE)
+plot(mammals_72sp, type='cladogram')
+
+plot(mammals_72sp, type='phylogram')
+add.scale.bar()
+
+# Q: What's the difference between a phylogram and a cladogram?
 
 plot(mammals_72sp, type='unrooted')
 
@@ -77,10 +82,8 @@ plot(mammals_72sp, type='fan')
 
 plot(mammals_72sp, type='radial')
 
-plot(mammals_72sp, type='phylogram')
-add.scale.bar()
-
-plot(mammals_72sp, type='phylogram', align.tip.label=TRUE)
+# you can pass most R plot arguments e.g. adjust size of text using 'cex'
+plot(mammals_72sp, type='phylogram', align.tip.label=TRUE, cex=0.7)
 add.scale.bar()
 
 # Add the node numbers for internal nodes
@@ -170,7 +173,7 @@ upgma_tree <- upgma(D)
 upgma_tree <- ladderize(upgma_tree)
 plot(upgma_tree)
 
-# Q: What's the distinctive feature of a UPGMA tree? (look at the plot)
+# Q: What's the distinctive feature of a UPGMA tree? (look at the plot). Is it suitable for our data set?
 
 # look at the branch lengths
 upgma_tree$edge.length
@@ -181,7 +184,7 @@ write.tree(upgma_tree)
 # save the tree to file
 write.tree(upgma_tree, file='nadh6_upgma.tree')
 
-# Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
+# Q: Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
 # ---------- CREATE A NEIGHBOUR-JOINING TREE USING DISTANCE MATRIX ----------
 
@@ -195,13 +198,18 @@ nj_tree <- nj(D)
 plot(nj_tree)
 add.scale.bar()
 
-# By default the tree is unrooted. Even if it looks OK, _always_ explicitly root the tree
+# By default the tree is unrooted. Even if it looks OK, _always_ root the tree
 rooted_nj <- ladderize(root(nj_tree, outgroup=outg, resolve.root=TRUE))
 plot(rooted_nj)
 add.scale.bar()
 
 # To save a tree
 write.tree(nj_tree, file = 'nadh6_nj.tree')
+
+# EXERCISE 4:
+#
+# 1. Use a distance matrix from a different model (from exercise 3) to construct
+#    a NJ tree. How does the tree differ?
 
 
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
@@ -228,118 +236,10 @@ write.tree(pars_tree)
 anc.pars <- ancestral.pars(pars_tree, aln)
 plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 
-# ---------- ESTIMATE TREE BY MAXIMUM LIKELIHOOD ----------
-
-# Package up the start tree (nj tree), alignment and model information into a likelihhod
-fit_ini <- pml(nj_tree, aln, k = 4)
-
-# Optimise the tree+alignment+model using maximum likelihood (ML)
-fit <- optim.pml(fit_ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
-
-# Get the ML tree
-ml_tree <- fit$tree
-
-# Root the ML tree using the outgroup species
-ml_tree <- ladderize(root(ml_tree, outgroup=outg, resolve.root=T))
-
-# Plot the ML tree
-plot(ml_tree)
-add.scale.bar()
-
-# Maybe a bit clearer without the outgroup
-plot(drop.tip(ml_tree, outg))
-
-# ---------- COMPARING TREES ----------
-
-# Let's compare the NJ tree with the ML tree
-# i.e. nj_tree & ml.tree
-
-# We want a plot with plots on 2 rows, 1 column (mfrow). Use small margins (mai)
-par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
-
-# Plot the NJ tree, then the ML tree and add a scale bar
-plot(rooted_nj)
-edgelabels(round(rooted_nj$edge.length, digits=3))
-add.scale.bar()
-
-plot(ml_tree)
-edgelabels(round(ml_tree$edge.length, digits=3))
-add.scale.bar()
-
-# Calculate the Robinson-Foulds distance between the two trees
-# If they are identical the RF distance is 0
-RF.dist(pars_tree, ml_tree)
-RF.dist(nj_tree, ml_tree)
-
-# Compare the phylogenies visually
-comparePhylo(nj_tree, ml_tree, plot=TRUE)
-
-# ----------- LARGER EXAMPLE (NOT COMPLETE!) ----------
-
-# Compare trees for two mitochondrial genes
-
-outg <- 'sus_scrofa'
-
-# cyb msa
-seqs1 <- readDNAStringSet('cyb.30prim.fasta', format='fasta')
-aln1 <- msa(seqs1)
-writeXStringSet(unmasked(aln1), file='cyb.30prim.aln.fasta')
-
-# estimate a neighbour joining tree for cyb
-aln1 <- read.dna('cyb.30prim.aln.fasta', format='fasta')
-dist1 <- dist.dna(aln1)
-tree1 <- nj(dist1)
-tree1 <- ladderize(root(tree1, outgroup=outg, resolve.root=TRUE))
-
-# nd6 msa
-seqs2 <- readDNAStringSet('nd6.30prim.fasta', format='fasta')
-aln2 <- msa(seqs2)
-writeXStringSet(unmasked(aln2), file='nd6.30prim.aln.fasta')
-
-# estimate a nj tree for nd6
-aln2 <- read.dna('nd6.30prim.aln.fasta', format='fasta')
-dist2 <- dist.dna(aln2)
-tree2 <- nj(dist2)
-tree2 <- ladderize(root(tree2, outgroup=outg, resolve.root=TRUE))
-
-# compare the two trees
-comparePhylo(tree1, tree2, plot=TRUE)
-
-association <- cbind(tree1$tip.label, tree2$tip.label)
-cophyloplot(tree1, tree2, assoc = association)
-
-# estimate cyb tree using maximum likelihood
-aln <- read.phyDat('cyb.30prim.aln.fasta', format='fasta')
-fit_ini <- pml(tree1, aln, k = 4)
-fit <- optim.pml(fit_ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
-ml_tree <- ladderize(root(fit$tree, outgroup=outg, resolve.root=TRUE))
-
-# compare with cyb nj tree
-comparePhylo(tree1, ml_tree, plot=TRUE)
-
-# plot one tree on top of the other
-par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
-plot(tree1)
-add.scale.bar()
-plot(ml_tree)
-add.scale.bar()
-
-association <- cbind(tree1$tip.label, ml_tree$tip.label)
-cophyloplot(tree1, ml_tree, assoc = association)
-
-# is nj tree a good fit to the observed pairwise distances?
-dist2 <- as.dist(cophenetic(tree1))
-plot(dist1, dist2)
-abline(0,1)
-
-
-# compare the distances of nj and ml trees
-d_nj <- cophenetic(tree1)
-d_ml <- cophenetic(ml_tree)
-plot(d_nj, d_ml)
-abline(0,1)
-
-d_upgma <- as.dist(cophenetic(upgma_tree))
-plot(D, d_upgma)
-abline(0,1)
-
+# EXERCISE 5:
+#
+# 1. What's the definition of a parsimony informative site? 
+#
+# 2. How many parsimony informative sites are in the alignment?
+#
+# 3. What's the parsimony score for site 12 (assume uniform cost matrix)?
