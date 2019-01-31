@@ -75,7 +75,7 @@ mammals_72sp$tip.label
 sum(mammals_72sp$edge.length)
 
 # Explore different ways of plotting the tree (one at a time)
-plot(mammals_72sp, type='cladogram', use.edge.length=FALSE)
+plot(mammals_72sp, type='cladogram', use.edge.length=FALSE, cex=0.3)
 
 plot(mammals_72sp, type='phylogram')
 add.scale.bar()
@@ -198,7 +198,7 @@ write.tree(upgma_tree, file='nadh6_upgma.tree')
 outg <- c('pig', 'cow')
 
 # Use the distances we calculated above
-nj_tree <- nj(D)
+nj_tree <- nj(D3)
 
 # View the tree
 plot(nj_tree)
@@ -218,33 +218,4 @@ write.tree(nj_tree, file = 'nadh6_nj.tree')
 #    a NJ tree. How does the tree differ?
 
 
-# ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
-
-# Use the phangorn library
-aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
-
-# Use a random starting tree
-rnd_tree <- rtree(length(aln), tip.label = names(aln))
-plot(rnd_tree)
-
-# the parsimony score for the random starting tree
-parsimony(rnd_tree, aln)
-
-# optimise the tree using maximum parsimony
-pars_tree <- optim.parsimony(rnd_tree, aln)
-pars_tree <- ladderize(root(pars_tree, outgroup=outg, resolve.root=TRUE))
-plot(pars_tree)
-
-# what's missing? look at the newick representation
-write.tree(pars_tree)
-
-# we can look at the changes on the tree for any given site. look at the 12th site
-anc.pars <- ancestral.pars(pars_tree, aln)
-plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
-
-# EXERCISE 5:
-#
-# 1. What's the parsimony score for site 12 (assume uniform cost matrix)?
-#
-# 2. Are the following sites parsimony informative: 5, 12, 57 and 492?
 
