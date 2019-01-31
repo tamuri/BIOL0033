@@ -1,6 +1,9 @@
 # ---------- DOWNLOAD THE PRACTICAL ----------
 #
-# 1. Download the require files from https://github.com/tamuri/BIOL0033/archive/master.zip
+# 1. Download the .zip file for the practical from
+#
+#    https://github.com/tamuri/BIOL0033/archive/master.zip
+#
 # 2. Extract the files
 
 # ---------- SET THE WORKING DIRECTORY ----------
