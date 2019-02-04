@@ -22,7 +22,7 @@ outg <- c('cow', 'pig')
 
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
 
-# Use the phangorn library
+# Use the phangorn library to read the alignment from practical 1
 aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
 
 # Use a random starting tree
@@ -114,7 +114,7 @@ nj_tree <- root(nj_tree, outgroup=outg)
 # Look at the tree
 plot(nj_tree)
 
-# Calculate the bootstrap support for each split in the ML tree.
+# Calculate the bootstrap support for each split in the tree.
 # The `boot.phylo` function is provided by the ape package.
 # The function pass to `FUN` should be exactly what you did on the real data to estimate the tree
 boots <- boot.phylo(phy=nj_tree,
