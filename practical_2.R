@@ -1,15 +1,39 @@
+# ---------- DOWNLOAD THE PRACTICAL ----------
+#
+# 1. Download the .zip file for the practical from
+#
+#    https://github.com/tamuri/BIOL0033/archive/master.zip
+#
+# 2. Extract the files
+
+# ---------- SET THE WORKING DIRECTORY ----------
+# i.e. the place where you put the files for the practical
+
+setwd('~/Documents/2019/BIOL0033')
+
+# ---------- LOAD THE REQUIRED PACKAGES ----------
+
+# 'ape' and 'phangorn' provide vast array of phylogenetic analyses
+library(ape)
+library(phangorn)
+
+# set the outgroup for our sequences
+outg <- c('cow', 'pig')
 
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
 
-# Use the phangorn library
+# Use the ape library
 aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
 
 # Use a random starting tree
 rnd_tree <- rtree(length(aln), tip.label = names(aln))
 plot(rnd_tree)
 
-# the parsimony score for the random starting tree
+# Q: What's the parsimony score for your starting tree?
 parsimony(rnd_tree, aln)
+
+# Q: What's the parsimony score of the maximum parsimony tree?
+# Q: How many operations did it take to find the MP tree?
 
 # optimise the tree using maximum parsimony
 pars_tree <- optim.parsimony(rnd_tree, aln)
@@ -23,7 +47,7 @@ write.tree(pars_tree)
 anc.pars <- ancestral.pars(pars_tree, aln)
 plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 
-# EXERCISE 5:
+# EXERCISE 1:
 #
 # 1. What's the parsimony score for site 12 (assume uniform cost matrix)?
 #
@@ -31,11 +55,11 @@ plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 
 # ---------- ESTIMATE TREE BY MAXIMUM LIKELIHOOD ----------
 
-# Package up the start tree (nj tree), alignment and model information into a likelihhod
-fit_ini <- pml(nj_tree, aln, k = 4)
+# Package up a start tree (NJ), alignment and model information into a likelihood object
+fit_ini <- pml(nj(dist.hamming(aln)), aln, model='JC')
 
 # Optimise the tree+alignment+model using maximum likelihood (ML)
-fit <- optim.pml(fit_ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
+fit <- optim.pml(fit_ini, optNni = TRUE, model='JC')
 
 # Get the ML tree
 ml_tree <- fit$tree
@@ -49,98 +73,105 @@ add.scale.bar()
 
 # Maybe a bit clearer without the outgroup
 plot(drop.tip(ml_tree, outg))
-
-# ---------- COMPARING TREES ----------
-
-# Let's compare the NJ tree with the ML tree
-# i.e. nj_tree & ml.tree
-
-# We want a plot with plots on 2 rows, 1 column (mfrow). Use small margins (mai)
-par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
-
-# Plot the NJ tree, then the ML tree and add a scale bar
-plot(rooted_nj)
-edgelabels(round(rooted_nj$edge.length, digits=3))
 add.scale.bar()
 
-plot(ml_tree)
-edgelabels(round(ml_tree$edge.length, digits=3))
+# EXERCISE 2:
+#
+# 1. What's the ML when using the K80 model? What is the ML estimate of the kappa parameter?
+#
+# 2. What's the likelihood ratio test statistic? Does the K80 model offer a significantly 
+#    better fit to the data?
+#    (Chi-sq with 1 degree of freedom has critical values of 5%: 3.84; 1%: 6.63)
+#
+# 3. Try a more complex model and answer the following.
+#
+#    e.g. try HKY+G (transition/transversion bias, unequal base frequencies, site rate variation)
+#    
+#    create a new initial likelihood object that includes the gamma rate categories:
+#
+#        fit_ini <- pml(nj(dist.hamming(aln)), aln, model='HKY', k=4)
+#
+#    then
+#
+#        optim.pml(fit_ini, optNni=TRUE, model='HKY', optGamma=TRUE)
+#
+#    a) What is the MLE of the transition/transversion bias?
+#    b) What is the MLE gamma shape parameter? Is this high or low site rate variation?
+#    c) How does the total tree length compare with the simple JC model above?
+
+
+# ---------- GETTING BOOTSTRAP SUPPORT VALUES OF TREE ----------
+
+# Bootstrap allows us to assign confidence scores to splits in our phylogenetic tree
+
+# Load our real alignment (ape-package requires use of the `read.dna` function)
+aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+
+# Calculate the NJ tree for this alignment
+nj_tree <- nj(dist.dna(aln))
+nj_tree <- root(nj_tree, outgroup=outg)
+
+# Look at the tree
+plot(nj_tree)
+
+# Calculate the bootstrap support for each split in the ML tree.
+# The `boot.phylo` function is provided by the ape package.
+# The function pass to `FUN` should be exactly what you did on the real data to estimate the tree
+boots <- boot.phylo(phy=nj_tree,
+                    x=aln,
+                    FUN=function(bs_aln) nj(dist.dna(bs_aln)),
+                    trees=TRUE)
+
+# Plot the tree with bootstrap support
+plot(nj_tree, main='nj tree w/ bootstrap support')
 add.scale.bar()
+nodelabels(boots$BP)
 
-# Calculate the Robinson-Foulds distance between the two trees
-# If they are identical the RF distance is 0
-RF.dist(pars_tree, ml_tree)
-RF.dist(nj_tree, ml_tree)
+# Get the majority-rule consensus tree
+con1 <- consensus(boots$trees, p=0.5, check.labels=TRUE)
+plot(root(con1, outgroup=outg, resolve.root=TRUE), main='majority-rule consensus')
 
-# Compare the phylogenies visually
-comparePhylo(nj_tree, ml_tree, plot=TRUE)
+# Get the strict consensus tree
+con2 <- consensus(boots$trees, p=1, check.labels=TRUE)
+plot(root(con2, outgroup=outg, resolve.root=TRUE), main='strict consensus')
 
-# ----------- LARGER EXAMPLE (NOT COMPLETE!) ----------
-
-# Compare trees for two mitochondrial genes
-
-outg <- 'sus_scrofa'
-
-# cyb msa
-seqs1 <- readDNAStringSet('cyb.30prim.fasta', format='fasta')
-aln1 <- msa(seqs1)
-writeXStringSet(unmasked(aln1), file='cyb.30prim.aln.fasta')
-
-# estimate a neighbour joining tree for cyb
-aln1 <- read.dna('cyb.30prim.aln.fasta', format='fasta')
-dist1 <- dist.dna(aln1)
-tree1 <- nj(dist1)
-tree1 <- ladderize(root(tree1, outgroup=outg, resolve.root=TRUE))
-
-# nd6 msa
-seqs2 <- readDNAStringSet('nd6.30prim.fasta', format='fasta')
-aln2 <- msa(seqs2)
-writeXStringSet(unmasked(aln2), file='nd6.30prim.aln.fasta')
-
-# estimate a nj tree for nd6
-aln2 <- read.dna('nd6.30prim.aln.fasta', format='fasta')
-dist2 <- dist.dna(aln2)
-tree2 <- nj(dist2)
-tree2 <- ladderize(root(tree2, outgroup=outg, resolve.root=TRUE))
-
-# compare the two trees
-comparePhylo(tree1, tree2, plot=TRUE)
-
-association <- cbind(tree1$tip.label, tree2$tip.label)
-cophyloplot(tree1, tree2, assoc = association)
-
-# estimate cyb tree using maximum likelihood
-aln <- read.phyDat('cyb.30prim.aln.fasta', format='fasta')
-fit_ini <- pml(tree1, aln, k = 4)
-fit <- optim.pml(fit_ini, optNni = TRUE, optBf = TRUE, optQ = TRUE, optGamma = TRUE)
-ml_tree <- ladderize(root(fit$tree, outgroup=outg, resolve.root=TRUE))
-
-# compare with cyb nj tree
-comparePhylo(tree1, ml_tree, plot=TRUE)
-
-# plot one tree on top of the other
-par(mfrow=c(2,1), mai=c(0.2,0.2,0.2,0.2))
-plot(tree1)
-add.scale.bar()
-plot(ml_tree)
-add.scale.bar()
-
-association <- cbind(tree1$tip.label, ml_tree$tip.label)
-cophyloplot(tree1, ml_tree, assoc = association)
-
-# is nj tree a good fit to the observed pairwise distances?
-dist2 <- as.dist(cophenetic(tree1))
-plot(dist1, dist2)
-abline(0,1)
+# EXERCISE 3:
+#
+# 1. Why are the majority-rule and strict consensus trees different?
+#
+# 2. Which split has the lowest support according to bootstrap analysis?
 
 
-# compare the distances of nj and ml trees
-d_nj <- cophenetic(tree1)
-d_ml <- cophenetic(ml_tree)
-plot(d_nj, d_ml)
-abline(0,1)
+# --------- EXTRA: USE PHYML ONLINE TO GET THE ML TREE WITH BOOTSTRAP ----------
 
-d_upgma <- as.dist(cophenetic(upgma_tree))
-plot(D, d_upgma)
-abline(0,1)
+# EXERCISE 4:
+#
+# Visit http://www.atgc-montpellier.fr/phyml/ in your browser
+#
+# First, convert the FASTA-format alignment to PHYLIP-format
+
+aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+write.dna(aln, file='nadh6.8apes.aln.phylip', format='interleaved')
+
+# Have a look at the PHYLIP file and compare with FASTA format
+
+# Then, upload the PHYLIP file as input data
+#
+# Select the options:
+#    a) Let PhyML automatically select the substitution model
+#    b) Get bootstrap support for the tree
+#    c) Leave the rest as defaults
+#
+# Finally, submit the job and wait for results in your email
+
+# 1. What was the best model according to the PhyML selection criteria?
+#
+# 2. What was the maximum log-likelihood of the data given the model?
+#
+# 3. Is there any nucleotide bias?
+#
+# 4. How does the PhyML tree & support values compare with the tree you estimated above? 
+#    (You can use FigTree to open the tree file - add the bootstrap support 'label' to the nodes)
+
+#    
 
