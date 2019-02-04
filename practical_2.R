@@ -64,6 +64,12 @@ fit <- optim.pml(fit_ini, optNni = TRUE, model='JC')
 # Get the ML tree
 ml_tree <- fit$tree
 
+# The maximum log-likelihood
+fit$logLik
+
+# The number of parameters in the model
+fit$df
+
 # Root the ML tree using the outgroup species
 ml_tree <- ladderize(root(ml_tree, outgroup=outg, resolve.root=T))
 
@@ -157,12 +163,6 @@ H0_opt <- optim.pml(H0_ini, optNni = TRUE, optRooted=TRUE, model='JC')
 # Optimise the branch lengths without the molecular clock
 H1_ini <- pml(upgma(dist.hamming(aln)), aln, model='JC')
 H1_opt <- optim.pml(H1_ini, optNni = TRUE, optRooted=FALSE, model='JC')
-
-# The likelihood:
-H1_opt$logLik
-
-# The number of parameters in the model:
-H1_opt$df
 
 # Q: Plot the clock tree and unconstrained tree
 
