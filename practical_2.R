@@ -22,7 +22,7 @@ outg <- c('cow', 'pig')
 
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
 
-# Use the ape library
+# Use the phangorn library
 aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
 
 # Use a random starting tree
@@ -32,13 +32,13 @@ plot(rnd_tree)
 # Q: What's the parsimony score for your starting tree?
 parsimony(rnd_tree, aln)
 
-# Q: What's the parsimony score of the maximum parsimony tree?
-# Q: How many operations did it take to find the MP tree?
-
 # optimise the tree using maximum parsimony
 pars_tree <- optim.parsimony(rnd_tree, aln)
 pars_tree <- ladderize(root(pars_tree, outgroup=outg, resolve.root=TRUE))
 plot(pars_tree)
+
+# Q: What's the parsimony score of the maximum parsimony tree?
+# Q: How many operations did it take to find the MP tree?
 
 # what's missing? look at the newick representation
 write.tree(pars_tree)
@@ -71,7 +71,7 @@ ml_tree <- ladderize(root(ml_tree, outgroup=outg, resolve.root=T))
 plot(ml_tree)
 add.scale.bar()
 
-# Maybe a bit clearer without the outgroup
+# Plotting without the outgroup
 plot(drop.tip(ml_tree, outg))
 add.scale.bar()
 
@@ -127,6 +127,10 @@ plot(nj_tree, main='nj tree w/ bootstrap support')
 add.scale.bar()
 nodelabels(boots$BP)
 
+# HINT: Save the tree and look at it in Figtree. It might be clearer.
+nj_tree$node.label <- boots$BP
+write.tree(nj_tree, file='nadh6.8apes.bs.tree')
+
 # Get the majority-rule consensus tree
 con1 <- consensus(boots$trees, p=0.5, check.labels=TRUE)
 plot(root(con1, outgroup=outg, resolve.root=TRUE), main='majority-rule consensus')
@@ -140,6 +144,39 @@ plot(root(con2, outgroup=outg, resolve.root=TRUE), main='strict consensus')
 # 1. Why are the majority-rule and strict consensus trees different?
 #
 # 2. Which split has the lowest support according to bootstrap analysis?
+
+# ---------- LRT OF MOLECULAR CLOCK ----------
+
+# Test the molecular clock hypothesis
+aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
+
+# Optimise the branch lengths under the molecular clock
+H0_ini <- pml(upgma(dist.hamming(aln)), aln, model='JC')
+H0_opt <- optim.pml(H0_ini, optNni = TRUE, optRooted=TRUE, model='JC')
+
+# Optimise the branch lengths without the molecular clock
+H1_ini <- pml(upgma(dist.hamming(aln)), aln, model='JC')
+H1_opt <- optim.pml(H1_ini, optNni = TRUE, optRooted=FALSE, model='JC')
+
+# The likelihood:
+H1_opt$logLik
+
+# The number of parameters in the model:
+H1_opt$df
+
+# Q: Plot the clock tree and unconstrained tree
+
+# EXERCISE 4:
+#
+# Perform the likelihood ratio test
+# 
+# 1. How do we calculate the test statistic? What is the value?
+#
+# 2. Calculate the degrees of freedom between the simpler and more complex model.
+#
+# 3. What is the P value given the value of test statistic? (use pchisq)
+#
+# 4. Do we accept or reject the hypothesis of the molecular clock?
 
 
 # --------- EXTRA: USE PHYML ONLINE TO GET THE ML TREE WITH BOOTSTRAP ----------
@@ -172,6 +209,6 @@ write.dna(aln, file='nadh6.8apes.aln.phylip', format='interleaved')
 #
 # 4. How does the PhyML tree & support values compare with the tree you estimated above? 
 #    (You can use FigTree to open the tree file - add the bootstrap support 'label' to the nodes)
+#    Which split has lowest bootstrap support?
 
-#    
 
