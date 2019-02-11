@@ -106,7 +106,7 @@ add.scale.bar()
 #    c) How does the total tree length compare with the simple JC model above?
 
 
-# ---------- GETTING BOOTSTRAP SUPPORT VALUES OF TREE ----------
+# ---------- GETTING BOOTSTRAP SUPPORT VALUES OF TREE (NJ) ----------
 
 # Bootstrap allows us to assign confidence scores to splits in our phylogenetic tree
 
@@ -150,6 +150,45 @@ plot(root(con2, outgroup=outg, resolve.root=TRUE), main='strict consensus')
 # 1. Why are the majority-rule and strict consensus trees different?
 #
 # 2. Which split has the lowest support according to bootstrap analysis?
+
+# ---------- GETTING BOOTSTRAP SUPPORT VALUES OF TREE (ML) ----------
+
+# Load the alignment (ape-package requires use of the `read.dna` function)
+aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+
+# A function to estimate the ML tree for this alignment
+# See section 'ESTIMATE TREE BY MAXIMUM LIKELIHOOD' above for details
+# (model is JC in this example but you can change)
+get_ml_tree <- function(x) {
+  x_pd <- as.phyDat(x)
+  fit_ini <- pml(nj(dist.hamming(x_pd)), x_pd, model='JC')
+  fit <- optim.pml(fit_ini, optNni = TRUE, model='JC')
+  return (fit$tree)
+}
+
+# Run the function the get the tree for the real data
+ml_tree <- get_ml_tree(aln)
+
+# Look at the tree
+plot(ml_tree)
+
+# Calculate the bootstrap support for each split in the tree.
+# The `boot.phylo` function is provided by the ape package.
+# The function pass to `FUN` should be exactly what you did on the real data to estimate the tree
+# Here, we pass the `get_ml_tree` function we defined above
+boots <- boot.phylo(phy=ml_tree,
+                    x=aln,
+                    FUN=function(bs_aln) get_ml_tree(bs_aln),
+                    trees=TRUE)
+
+# Plot the tree with bootstrap support
+plot(ml_tree, main='ml tree w/ bootstrap support')
+add.scale.bar()
+nodelabels(boots$BP)
+
+# HINT: Save the tree and look at it in Figtree. It might be clearer.
+ml_tree$node.label <- boots$BP
+write.tree(ml_tree, file='nadh6.8apes.ml.bs.tree')
 
 # ---------- LRT OF MOLECULAR CLOCK ----------
 
