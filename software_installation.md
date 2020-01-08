@@ -44,7 +44,7 @@ My output looks like this:
 
 ```
 > version$version.string
-[1] "R version 3.5.2 (2018-12-20)"
+[1] "R version 3.6.1 (2019-07-05)"
 ```
 
 ## Install packages
@@ -64,10 +64,10 @@ install.packages(c('BiocManager', 'adegenet', 'ape',
 
 You will see packages being downloaded and installed. Wait for the installation process to finish (when the output stops and prompt is again displayed). It can take some time, be patient!
 
-3. Install packages for multiple sequence alignment and tree visualisation. Copy & paste the following lines into the RStudio console and press return
+3. Install packages for multiple sequence alignment and tree visualisation. Copy & paste the following lines into the RStudio console and press return. You might get a prompt to update some other packages, which you should accept (update 'all').
 
 ```
-BiocManager::install("msa", version = "3.8")
+BiocManager::install("msa")
 ```
 
 4. Check that all the packages have been installed and can be loaded. Run the following in the R console
@@ -84,7 +84,7 @@ package.check <- lapply(packages, FUN = function(x) {
 })
 ```
 
-You should see messages such as "Loading required package: xxxx" for each of the packages. There might be some info messages ("The following object is masked..." etc.) but no errors.
+You should see messages such as "Loading required package: xxxx" for each of the packages. There might be some info messages ("The following object is masked..." etc.) and warning messages but no errors.
 
 5. Finally, check the packages are in your search path. Type the command:
 
