@@ -62,6 +62,8 @@ install.packages(c('BiocManager', 'adegenet', 'ape',
 'geiger', 'phangorn', 'phylogram', 'phytools'), dep=TRUE)
 ```
 
+NOTE: If you see the message "Do you want to install from sources the packages which need compilation? (Yes/no/cancel)" - it is usual safe to say "no".
+
 You will see packages being downloaded and installed. Wait for the installation process to finish (when the output stops and prompt is again displayed). It can take some time, be patient!
 
 3. Install packages for multiple sequence alignment and tree visualisation. Copy & paste the following lines into the RStudio console and press return. You might get a prompt to update some other packages, which you should accept (update 'all').
