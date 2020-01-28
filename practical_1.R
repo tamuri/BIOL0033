@@ -198,7 +198,7 @@ write.tree(upgma_tree, file='nadh6_upgma.tree')
 outg <- c('pig', 'cow')
 
 # Use the distances we calculated above
-nj_tree <- nj(D3)
+nj_tree <- nj(D)
 
 # View the tree
 plot(nj_tree)
