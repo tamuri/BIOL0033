@@ -28,7 +28,7 @@ my_newick <- '(a, (b, c), d);'
 # Plot the tree defined by the string above
 my_tree <- ape::read.tree(text=my_newick)
 print(my_tree)
-ape::plot.phylo(my_tree, type='unrooted')
+ape::plot.phylo(x=my_tree, type='unrooted')
 
 # Before we can make any evolutionary inference, we need to root the tree using an outgroup
 rerooted_tree <- ape::root(phy=my_tree, outgroup = 'a', resolve.root = TRUE)
@@ -198,7 +198,7 @@ ape::write.tree(phy=upgma_tree, file='nadh6_upgma.tree')
 outg <- c('pig', 'cow')
 
 # Use the distances we calculated above
-nj_tree <- ape::nj(D)
+nj_tree <- ape::nj(X=D)
 
 # View the tree
 ape::plot.phylo(x=nj_tree)
