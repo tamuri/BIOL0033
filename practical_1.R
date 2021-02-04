@@ -26,13 +26,13 @@ library(msa)
 my_newick <- '(a, (b, c), d);'
 
 # Plot the tree defined by the string above
-my_tree <- read.tree(text=my_newick)
+my_tree <- ape::read.tree(text=my_newick)
 print(my_tree)
-plot(my_tree, type='unrooted')
+ape::plot.phylo(my_tree, type='unrooted')
 
 # Before we can make any evolutionary inference, we need to root the tree using an outgroup
-rerooted_tree <- root(my_tree, outgroup = 'a', resolve.root = TRUE)
-plot(rerooted_tree, type='phylogram')
+rerooted_tree <- ape::root(phy=my_tree, outgroup = 'a', resolve.root = TRUE)
+ape::plot.phylo(x=rerooted_tree, type='phylogram')
 
 # EXERCISE 1:
 #
@@ -63,7 +63,7 @@ plot(rerooted_tree, type='phylogram')
 #   iv) taxon d
 
 # Read in a tree from a file (take a look at the file too)
-mammals_72sp <- read.tree(file='72sp.tree')
+mammals_72sp <- ape::read.tree(file='72sp.tree')
 
 # Get summary of tree
 mammals_72sp
@@ -75,28 +75,28 @@ mammals_72sp$tip.label
 sum(mammals_72sp$edge.length)
 
 # Explore different ways of plotting the tree (one at a time)
-plot(mammals_72sp, type='cladogram', use.edge.length=FALSE, cex=0.3)
+ape::plot.phylo(x=mammals_72sp, type='cladogram', use.edge.length=FALSE, cex=0.3)
 
-plot(mammals_72sp, type='phylogram')
+ape::plot.phylo(x=mammals_72sp, type='phylogram')
 add.scale.bar()
 
 # Q: What's the difference between a phylogram and a cladogram?
 
-plot(mammals_72sp, type='unrooted')
+ape::plot.phylo(x=mammals_72sp, type='unrooted')
 
-plot(mammals_72sp, type='fan')
+ape::plot.phylo(x=mammals_72sp, type='fan')
 
-plot(mammals_72sp, type='radial')
+ape::plot.phylo(x=mammals_72sp, type='radial')
 
 # you can pass most R plot arguments e.g. adjust size of text using 'cex'
-plot(mammals_72sp, type='phylogram', align.tip.label=TRUE, cex=0.7)
+ape::plot.phylo(x=mammals_72sp, type='phylogram', align.tip.label=TRUE, cex=0.7)
 add.scale.bar()
 
 # Add the node numbers for internal nodes
 nodelabels()
 
 # Plot with specific node highlighted
-plot(mammals_72sp, type='phylogram', use.edge.length=FALSE)
+ape::plot.phylo(x=mammals_72sp, type='phylogram', use.edge.length=FALSE)
 nodelabels('Carnivora', 132)
 nodelabels('Glires', 79)
 
@@ -105,11 +105,11 @@ nodelabels('Glires', 79)
 # Align sequences using the 'msa' package
 
 # Load the unaligned sequences
-seqs <- readDNAStringSet('nadh6.8apes.fasta', format='fasta')
+seqs <- Biostrings::readDNAStringSet(filepath='nadh6.8apes.fasta', format='fasta')
 
 # The msa package provides several alignment tools. By default it uses the 
 # program 'ClustalW'. To align the sequences using the default options
-aln <- msa(seqs)
+aln <- msa::msa(inputSeqs=seqs)
 
 # Take a look at the alignment
 aln
@@ -118,7 +118,7 @@ aln
 print(aln, show='complete')
 
 # Save the multiple sequence alignment
-writeXStringSet(unmasked(aln), file='nadh6.8apes.aln.fasta')
+Biostrings::writeXStringSet(Biostrings::unmasked(x=aln), file='nadh6.8apes.aln.fasta')
 
 # EXERCISE 2:
 #
@@ -138,15 +138,15 @@ writeXStringSet(unmasked(aln), file='nadh6.8apes.aln.fasta')
 # The 'ape' library provides many tools for phylogenetic analysis. 
 
 # Read the aligned sequences we had saved to file above
-aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+aln <- ape::read.dna(file='nadh6.8apes.aln.fasta', format='fasta')
 
 # Lets see what the alignment looks like
-checkAlignment(aln)
+ape::checkAlignment(x=aln)
 
 # What kind of things should we look for to check the quality of our alignment?
 
 # Calculate pairwise distances between sequences
-D <- dist.dna(aln, model='JC')
+D <- ape::dist.dna(x=aln, model='JC')
 
 # Look at the distance matrix
 D
@@ -175,8 +175,8 @@ D
 
 # ---------- CREATE A UPGMA TREE USING DISTANCE MATRIX ----------
 
-upgma_tree <- upgma(D)
-upgma_tree <- ladderize(upgma_tree)
+upgma_tree <- phangorn::upgma(D=D)
+upgma_tree <- ape::ladderize(phy=upgma_tree)
 plot(upgma_tree)
 
 # Q: What's the distinctive feature of a UPGMA tree? (look at the plot). Is it suitable for our data set?
@@ -185,10 +185,10 @@ plot(upgma_tree)
 upgma_tree$edge.length
 
 # look at the newick representation
-write.tree(upgma_tree)
+ape::write.tree(phy=upgma_tree)
 
 # save the tree to file
-write.tree(upgma_tree, file='nadh6_upgma.tree')
+ape::write.tree(phy=upgma_tree, file='nadh6_upgma.tree')
 
 # Q: Open the tree in Figtree (if you installed it)? Does it render the tree the same way?
 
@@ -198,19 +198,19 @@ write.tree(upgma_tree, file='nadh6_upgma.tree')
 outg <- c('pig', 'cow')
 
 # Use the distances we calculated above
-nj_tree <- nj(D)
+nj_tree <- ape::nj(D)
 
 # View the tree
-plot(nj_tree)
+ape::plot.phylo(x=nj_tree)
 add.scale.bar()
 
 # By default the tree is unrooted. Even if it looks OK, _always_ root the tree
-rooted_nj <- ladderize(root(nj_tree, outgroup=outg, resolve.root=TRUE))
-plot(rooted_nj)
+rooted_nj <- ape::ladderize(phy=ape::root(phy=nj_tree, outgroup=outg, resolve.root=TRUE))
+ape::plot.phylo(x=rooted_nj)
 add.scale.bar()
 
 # To save a tree
-write.tree(nj_tree, file = 'nadh6_nj.tree')
+ape::write.tree(phy=nj_tree, file = 'nadh6_nj.tree')
 
 # EXERCISE 4:
 #
