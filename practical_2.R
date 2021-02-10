@@ -9,13 +9,13 @@
 # ---------- SET THE WORKING DIRECTORY ----------
 # i.e. the place where you put the files for the practical
 
-setwd('~/Documents/2019/BIOL0033')
+setwd( '~/Documents/2019/BIOL0033' )
 
 # ---------- LOAD THE REQUIRED PACKAGES ----------
 
 # 'ape' and 'phangorn' provide vast array of phylogenetic analyses
-library(ape)
-library(phangorn)
+library( ape )
+library( phangorn )
 
 # set the outgroup for our sequences
 outg <- c('cow', 'pig')
@@ -23,29 +23,30 @@ outg <- c('cow', 'pig')
 # ---------- ESTIMATE TREE BY MAXIMUM PARSIMONY ----------
 
 # Use the phangorn library to read the alignment from practical 1
-aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
+aln <- phangorn::read.phyDat( file = 'nadh6.8apes.aln.fasta', format = 'fasta' )
 
 # Use a random starting tree
-rnd_tree <- rtree(length(aln), tip.label = names(aln))
-plot(rnd_tree)
+rnd_tree <- ape::rtree( n = length( aln ), tip.label = names( aln ) )
+ape::plot.phylo( rnd_tree )
 
 # Q: What's the parsimony score for your starting tree?
-parsimony(rnd_tree, aln)
+phangorn::parsimony( tree = rnd_tree, data = aln )
 
 # optimise the tree using maximum parsimony
-pars_tree <- optim.parsimony(rnd_tree, aln)
-pars_tree <- ladderize(root(pars_tree, outgroup=outg, resolve.root=TRUE))
-plot(pars_tree)
+pars_tree <- phangorn::optim.parsimony( tree = rnd_tree, data = aln ) # 14 nni
+pars_tree <- ape::ladderize( ape::root( phy = pars_tree, outgroup = outg, resolve.root = TRUE ) )
+ape::plot.phylo( pars_tree )
 
 # Q: What's the parsimony score of the maximum parsimony tree?
 # Q: How many operations did it take to find the MP tree?
 
 # what's missing? look at the newick representation
-write.tree(pars_tree)
+write.tree( pars_tree )
 
 # we can look at the changes on the tree for any given site. look at the 12th site
-anc.pars <- ancestral.pars(pars_tree, aln)
-plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
+anc_pars <- phangorn::ancestral.pars( tree = pars_tree, data = aln )
+phangorn::plotAnc( tree = pars_tree, data = anc_pars, i = attr( x = anc_pars, which = 'index' )[12],
+                   col = c( "green", "blue", "black", "red" ) )
 
 # EXERCISE 1:
 #
@@ -56,10 +57,10 @@ plotAnc(pars_tree, anc.pars, attr(anc.pars, 'index')[12])
 # ---------- ESTIMATE TREE BY MAXIMUM LIKELIHOOD ----------
 
 # Package up a start tree (NJ), alignment and model information into a likelihood object
-fit_ini <- pml(nj(dist.hamming(aln)), aln, model='JC')
+fit_ini <- phangorn::pml( tree = nj( phangorn::dist.hamming( aln ) ), data = aln, model = 'JC' )
 
 # Optimise the tree+alignment+model using maximum likelihood (ML)
-fit <- optim.pml(fit_ini, optNni = TRUE, model='JC')
+fit <- phangorn::optim.pml( object = fit_ini, optNni = TRUE, model = 'JC' )
 
 # Get the ML tree
 ml_tree <- fit$tree
@@ -71,15 +72,16 @@ fit$logLik
 fit$df
 
 # Root the ML tree using the outgroup species
-ml_tree <- ladderize(root(ml_tree, outgroup=outg, resolve.root=T))
+ml_tree <- ape::ladderize( phy = ape::root( phy = ml_tree, outgroup = outg, resolve.root = TRUE ) )
 
 # Plot the ML tree
-plot(ml_tree)
-add.scale.bar()
+ape::plot.phylo( ml_tree )
+ape::add.scale.bar()
+
 
 # Plotting without the outgroup
-plot(drop.tip(ml_tree, outg))
-add.scale.bar()
+ape::plot.phylo( x = ape::drop.tip( phy = ml_tree, tip = outg ) )
+ape::add.scale.bar()
 
 # EXERCISE 2:
 #
@@ -111,39 +113,41 @@ add.scale.bar()
 # Bootstrap allows us to assign confidence scores to splits in our phylogenetic tree
 
 # Load our real alignment (ape-package requires use of the `read.dna` function)
-aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+aln <- ape::read.dna( file = 'nadh6.8apes.aln.fasta', format = 'fasta' )
 
 # Calculate the NJ tree for this alignment
-nj_tree <- nj(dist.dna(aln))
-nj_tree <- root(nj_tree, outgroup=outg)
+nj_tree <- ape::nj( X = ape::dist.dna( x = aln ) )
+nj_tree <- ape::root( phy = nj_tree, outgroup = outg )
 
 # Look at the tree
-plot(nj_tree)
+ape::plot.phylo( x = nj_tree )
 
 # Calculate the bootstrap support for each split in the tree.
 # The `boot.phylo` function is provided by the ape package.
 # The function pass to `FUN` should be exactly what you did on the real data to estimate the tree
-boots <- boot.phylo(phy=nj_tree,
-                    x=aln,
-                    FUN=function(bs_aln) nj(dist.dna(bs_aln)),
-                    trees=TRUE)
+boots <- ape::boot.phylo( phy = nj_tree,
+                          x = aln,
+                          FUN = function( bs_aln ) ape::nj( X = ape::dist.dna( x = bs_aln ) ),
+                          trees = TRUE)
 
 # Plot the tree with bootstrap support
-plot(nj_tree, main='nj tree w/ bootstrap support')
-add.scale.bar()
-nodelabels(boots$BP)
+ape::plot.phylo( x = nj_tree, main='nj tree w/ bootstrap support')
+ape::add.scale.bar()
+ape::nodelabels( boots$BP )
 
 # HINT: Save the tree and look at it in Figtree. It might be clearer.
 nj_tree$node.label <- boots$BP
-write.tree(nj_tree, file='nadh6.8apes.bs.tree')
+ape::write.tree( phy = nj_tree, file='nadh6.8apes.bs.tree')
 
 # Get the majority-rule consensus tree
-con1 <- consensus(boots$trees, p=0.5, check.labels=TRUE)
-plot(root(con1, outgroup=outg, resolve.root=TRUE), main='majority-rule consensus')
+con1 <- ape::consensus( boots$trees, p = 0.5, check.labels = TRUE)
+ape::plot.phylo( x = ape::root( phy = con1, outgroup = outg, resolve.root = TRUE ),
+                 main = 'majority-rule consensus' )
 
 # Get the strict consensus tree
-con2 <- consensus(boots$trees, p=1, check.labels=TRUE)
-plot(root(con2, outgroup=outg, resolve.root=TRUE), main='strict consensus')
+con2 <- ape::consensus( boots$trees, p = 1, check.labels = TRUE )
+ape::plot.phylo( x = ape::root( phy = con2, outgroup = outg, resolve.root = TRUE ),
+                 main = 'strict consensus' )
 
 # EXERCISE 3:
 #
@@ -154,54 +158,59 @@ plot(root(con2, outgroup=outg, resolve.root=TRUE), main='strict consensus')
 # ---------- GETTING BOOTSTRAP SUPPORT VALUES OF TREE (ML) ----------
 
 # Load the alignment (ape-package requires use of the `read.dna` function)
-aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
+aln <- ape::read.dna( file = 'nadh6.8apes.aln.fasta', format = 'fasta' )
 
 # A function to estimate the ML tree for this alignment
 # See section 'ESTIMATE TREE BY MAXIMUM LIKELIHOOD' above for details
 # (model is JC in this example but you can change)
 get_ml_tree <- function(x) {
-  x_pd <- as.phyDat(x)
-  fit_ini <- pml(nj(dist.hamming(x_pd)), x_pd, model='JC')
-  fit <- optim.pml(fit_ini, optNni = TRUE, model='JC')
-  return (fit$tree)
+  x_pd    <- phangorn::as.phyDat( x = x )
+  fit_ini <- phangorn::pml( tree = ape::nj( phangorn::dist.hamming( x = x_pd ) ),
+                            data = x_pd, model = 'JC' )
+  fit     <- phangorn::optim.pml( object = fit_ini, optNni = TRUE, model = 'JC' )
+  return ( fit$tree )
 }
 
 # Run the function the get the tree for the real data
-ml_tree <- get_ml_tree(aln)
+ml_tree <- get_ml_tree( x = aln )
 
 # Look at the tree
-plot(ml_tree)
+ape::plot.phylo( x = ml_tree )
 
 # Calculate the bootstrap support for each split in the tree.
 # The `boot.phylo` function is provided by the ape package.
 # The function pass to `FUN` should be exactly what you did on the real data to estimate the tree
 # Here, we pass the `get_ml_tree` function we defined above
-boots <- boot.phylo(phy=ml_tree,
-                    x=aln,
-                    FUN=function(bs_aln) get_ml_tree(bs_aln),
-                    trees=TRUE)
+boots <- ape::boot.phylo( phy = ml_tree,
+                          x = aln,
+                          FUN = function( bs_aln ) get_ml_tree( x = bs_aln ),
+                          trees = TRUE )
 
 # Plot the tree with bootstrap support
-plot(ml_tree, main='ml tree w/ bootstrap support')
-add.scale.bar()
-nodelabels(boots$BP)
+ape::plot.phylo( x = ml_tree, main = 'ml tree w/ bootstrap support' )
+ape::add.scale.bar()
+ape::nodelabels( boots$BP )
 
 # HINT: Save the tree and look at it in Figtree. It might be clearer.
 ml_tree$node.label <- boots$BP
-write.tree(ml_tree, file='nadh6.8apes.ml.bs.tree')
+ape::write.tree( phy = ml_tree, file = 'nadh6.8apes.ml.bs.tree' )
 
 # ---------- LRT OF MOLECULAR CLOCK ----------
 
 # Test the molecular clock hypothesis
-aln <- read.phyDat('nadh6.8apes.aln.fasta', format = 'fasta')
+aln <- phangorn::read.phyDat( file = 'nadh6.8apes.aln.fasta', format = 'fasta')
 
 # Optimise the branch lengths under the molecular clock
-H0_ini <- pml(upgma(dist.hamming(aln)), aln, model='JC')
-H0_opt <- optim.pml(H0_ini, optNni = TRUE, optRooted=TRUE, model='JC')
+H0_ini <- phangorn::pml( tree = phangorn::upgma( phangorn::dist.hamming(x = aln ) ),
+                         data = aln, model = 'JC' )
+H0_opt <- phangorn::optim.pml( object = H0_ini, optNni = TRUE,
+                               optRooted = TRUE, model = 'JC' )
 
 # Optimise the branch lengths without the molecular clock
-H1_ini <- pml(upgma(dist.hamming(aln)), aln, model='JC')
-H1_opt <- optim.pml(H1_ini, optNni = TRUE, optRooted=FALSE, model='JC')
+H1_ini <- phangorn::pml( tree = phangorn::upgma( phangorn::dist.hamming( x = aln ) ),
+                         data = aln, model = 'JC' )
+H1_opt <- phangorn::optim.pml( object = H1_ini, optNni = TRUE,
+                               optRooted=FALSE, model = 'JC' )
 
 # Q: Plot the clock tree and unconstrained tree
 
@@ -226,8 +235,8 @@ H1_opt <- optim.pml(H1_ini, optNni = TRUE, optRooted=FALSE, model='JC')
 #
 # First, convert the FASTA-format alignment to PHYLIP-format
 
-aln <- read.dna('nadh6.8apes.aln.fasta', format='fasta')
-write.dna(aln, file='nadh6.8apes.aln.phylip', format='interleaved')
+aln <- ape::read.dna( file = 'nadh6.8apes.aln.fasta', format = 'fasta' )
+ape::write.dna( x = aln, file = 'nadh6.8apes.aln.phylip', format = 'interleaved' )
 
 # Have a look at the PHYLIP file and compare with FASTA format
 
