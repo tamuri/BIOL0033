@@ -133,7 +133,19 @@ boots <- ape::boot.phylo( phy = nj_tree,
 # Plot the tree with bootstrap support
 ape::plot.phylo( x = nj_tree, main='nj tree w/ bootstrap support')
 ape::add.scale.bar()
-ape::nodelabels( boots$BP )
+# ape::nodelabels( boots$BP ) # SAC-210226: Not used anymore as this prints
+#                               an extra bootstrap value for the root 
+#                               on the tree, which should not be printed.
+#                               Use command below:
+ape::drawSupportOnEdges( value = boots$BP )
+# SAC-210226: It is also recommended that node labels should be added
+# before rooting the tree. Therefore:
+nj_tree_unr            <- ape::nj( X = ape::dist.dna( x = aln ) )
+nj_tree_unr$node.label <- boots$BP
+nj_tree_bs             <- ape::root( phy = nj_tree, outgroup = outg,
+                                    edgelabel = TRUE )
+ape::plot.phylo( x = nj_tree_bs, main='nj tree w/ bootstrap support' )
+ape::drawSupportOnEdges( value = nj_tree_bs$node.label )
 
 # HINT: Save the tree and look at it in Figtree. It might be clearer.
 nj_tree$node.label <- boots$BP
